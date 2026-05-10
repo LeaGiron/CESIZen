@@ -22,7 +22,7 @@ jobs:
         working-directory: CESIZen-Web
 
     steps:
-      - name: Récupération du code
+      - name: Récupération du code source
         uses: actions/checkout@v4
 
       - name: Installation de Node.js
@@ -33,16 +33,16 @@ jobs:
       - name: Installation des dépendances
         run: npm install
 
-      - name: Vérification qualité du code
+      - name: Analyse statique du code
         run: npm run lint --if-present
 
-      - name: Lancement des tests
+      - name: Exécution des tests automatisés
         run: npm test --if-present
 
-      - name: Build de l'application web
+      - name: Génération du build
         run: npm run build --if-present
 
-      - name: Audit de sécurité
+      - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
         continue-on-error: true
 
@@ -55,7 +55,7 @@ jobs:
         working-directory: CESIZen-Mobile
 
     steps:
-      - name: Récupération du code
+      - name: Récupération du code source
         uses: actions/checkout@v4
 
       - name: Installation de Node.js
@@ -64,14 +64,14 @@ jobs:
           node-version: 20
 
       - name: Installation des dépendances
-        run: npm install
+        run: npm install --legacy-peer-deps
 
-      - name: Vérification qualité du code
+      - name: Analyse statique du code
         run: npm run lint --if-present
 
-      - name: Lancement des tests
+      - name: Exécution des tests automatisés
         run: npm test --if-present
 
-      - name: Audit de sécurité
+      - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
         continue-on-error: true
