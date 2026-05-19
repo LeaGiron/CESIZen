@@ -1,0 +1,33 @@
+services:
+  web:
+    build:
+      context: ./CESIZen-Web
+      dockerfile: Dockerfile
+    container_name: cesizen-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./CESIZen-Web/.env.example
+    volumes:
+      - ./CESIZen-Web:/app
+      - /app/node_modules
+    networks:
+      - cesizen-network
+
+  mobile:
+    build:
+      context: ./CESIZen-Mobile
+      dockerfile: Dockerfile
+    container_name: cesizen-mobile
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./CESIZen-Mobile/.env
+    volumes:
+      - ./CESIZen-Mobile:/app
+    networks:
+      - cesizen-network
+
+networks:
+  cesizen-network:
+    driver: bridge
