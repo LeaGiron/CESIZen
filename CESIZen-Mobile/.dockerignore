@@ -1,8 +1,4 @@
 node_modules
 .expo
 dist
-build
-coverage
-.env
 .git
-.DS_Store

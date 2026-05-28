@@ -1,6 +1,3 @@
-// __mocks__/supabase.ts
-// Mock centralisé Supabase — importé automatiquement par Jest via jest.mock('@/lib/supabase')
-
 export const mockUser = {
   id: 'user-test-123',
   email: 'lea@test.com',
@@ -18,11 +15,9 @@ export const mockProfil = {
   email_util: 'lea@test.com',
 };
 
-// Builder de réponse Supabase
 const ok = (data: any) => ({ data, error: null });
 const err = (msg: string) => ({ data: null, error: { message: msg } });
 
-// Chaîne fluente (from().select().eq().single() etc.)
 const makeQuery = (result: any) => {
   const chain: any = {
     select: () => chain,
@@ -34,8 +29,8 @@ const makeQuery = (result: any) => {
     order: () => chain,
     limit: () => chain,
     single: () => Promise.resolve(result),
-    then: (resolve: any) => Promise.resolve(result).then(resolve),
   };
+
   return chain;
 };
 
@@ -53,7 +48,6 @@ export const supabase = {
   },
 
   from: jest.fn((table: string) => {
-    // Réponses par défaut selon la table
     const defaults: Record<string, any> = {
       utilisateur: ok(mockProfil),
       exercice_respiration: ok([
