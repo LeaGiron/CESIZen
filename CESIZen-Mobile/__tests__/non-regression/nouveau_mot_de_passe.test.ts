@@ -1,7 +1,3 @@
-
-// Mocks simples des composants visuels.
-// Important : les fichiers sont en .ts, donc on évite le JSX ici.
-// On utilise React.createElement pour que Jest puisse lire le fichier sans erreur.
 jest.mock('@/components/Bouton', () => {
   const React = require('react');
   const { Text, TouchableOpacity } = require('react-native');
@@ -110,7 +106,25 @@ jest.mock('expo-router', () => ({
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
+      getSession: jest.fn().mockResolvedValue({
+        data: {
+          session: {
+            access_token: 'fake-token',
+            user: { id: 'user-test-123' },
+          },
+        },
+        error: null,
+      }),
+
       updateUser: mockUpdateUser,
+
+      onAuthStateChange: jest.fn().mockReturnValue({
+        data: {
+          subscription: {
+            unsubscribe: jest.fn(),
+          },
+        },
+      }),
     },
   },
 }));
@@ -132,8 +146,8 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      'Sécurité',
-      'Le mot de passe doit faire au moins 12 caractères.'
+      'Mot de passe incomplet',
+      'Il manque : 12 caractères minimum, une majuscule, un chiffre, un caractère spécial'
     );
     expect(mockUpdateUser).not.toHaveBeenCalled();
   });
@@ -141,8 +155,8 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
   it('refuse deux mots de passe différents', () => {
     const { getByPlaceholderText, getByText } = render(React.createElement(NouveauMotDePassePage));
 
-    fireEvent.changeText(getByPlaceholderText('Nouveau mot de passe'), 'Motdepasse123!');
-    fireEvent.changeText(getByPlaceholderText('Confirmer le mot de passe'), 'AutreMotdepasse123!');
+    fireEvent.changeText(getByPlaceholderText('Nouveau mot de passe'), 'MotDePasse123!');
+    fireEvent.changeText(getByPlaceholderText('Confirmer le mot de passe'), 'AutreMotDePasse123!');
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -157,13 +171,13 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
 
     const { getByPlaceholderText, getByText } = render(React.createElement(NouveauMotDePassePage));
 
-    fireEvent.changeText(getByPlaceholderText('Nouveau mot de passe'), 'Motdepasse123!');
-    fireEvent.changeText(getByPlaceholderText('Confirmer le mot de passe'), 'Motdepasse123!');
+    fireEvent.changeText(getByPlaceholderText('Nouveau mot de passe'), 'MotDePasse123!');
+    fireEvent.changeText(getByPlaceholderText('Confirmer le mot de passe'), 'MotDePasse123!');
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     await waitFor(() => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
-        password: 'Motdepasse123!',
+        password: 'MotDePasse123!',
       });
     });
   });
