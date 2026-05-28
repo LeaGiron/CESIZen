@@ -1,8 +1,17 @@
 node_modules
 .next
+<<<<<<< HEAD
 .git
 .env
 .env.local
 npm-debug.log
 Dockerfile
 docker-compose.yml
+=======
+dist
+build
+coverage
+.env
+.git
+.DS_Store
+>>>>>>> origin/develop
