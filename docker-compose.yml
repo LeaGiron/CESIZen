@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./CESIZen-Web/.env.example
+      - .env
     volumes:
       - ./CESIZen-Web:/app
       - /app/node_modules
@@ -22,7 +22,7 @@ services:
     ports:
       - "8081:8081"
     env_file:
-      - ./CESIZen-Mobile/.env
+      - .env
     volumes:
       - ./CESIZen-Mobile:/app
     networks:

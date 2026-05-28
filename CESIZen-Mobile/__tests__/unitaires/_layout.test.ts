@@ -1,6 +1,40 @@
 const React = require('react');
 const { render } = require('@testing-library/react-native');
 
+const mockReplace = jest.fn();
+const mockGetSession = jest.fn(() =>
+  Promise.resolve({
+    data: { session: null },
+  })
+);
+
+const mockSingle = jest.fn(() =>
+  Promise.resolve({
+    data: null,
+    error: null,
+  })
+);
+
+const mockEq = jest.fn(() => ({
+  single: mockSingle,
+}));
+
+const mockSelect = jest.fn(() => ({
+  eq: mockEq,
+}));
+
+const mockFrom = jest.fn(() => ({
+  select: mockSelect,
+}));
+
+const MockThemeProvider = ({ children }: any) =>
+  React.createElement(React.Fragment, null, children);
+
+const MockStack = ({ children }: any) =>
+  React.createElement(React.Fragment, null, children);
+
+MockStack.Screen = () => null;
+
 jest.mock('expo-font', () => ({
   useFonts: jest.fn(() => [true, null]),
 }));
@@ -16,61 +50,30 @@ jest.mock('@expo/vector-icons/FontAwesome', () => ({
   font: {},
 }));
 
-jest.mock('@react-navigation/native', () => {
-  const React = require('react');
-
-  return {
-    DarkTheme: { dark: true },
-    DefaultTheme: { dark: false },
-    ThemeProvider: ({ children }: any) =>
-      React.createElement(React.Fragment, null, children),
-  };
-});
+jest.mock('@react-navigation/native', () => ({
+  DarkTheme: { dark: true },
+  DefaultTheme: { dark: false },
+  ThemeProvider: MockThemeProvider,
+}));
 
 jest.mock('@/components/useColorScheme', () => ({
   useColorScheme: jest.fn(() => 'light'),
 }));
 
-jest.mock('expo-router', () => {
-  const React = require('react');
-
-  const MockStack = ({ children }: any) =>
-    React.createElement(React.Fragment, null, children);
-
-  MockStack.Screen = () => null;
-
-  return {
-    ErrorBoundary: () => null,
-    Stack: MockStack,
-    useRouter: () => ({
-      replace: jest.fn(),
-    }),
-  };
-});
+jest.mock('expo-router', () => ({
+  ErrorBoundary: () => null,
+  Stack: MockStack,
+  useRouter: () => ({
+    replace: mockReplace,
+  }),
+}));
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
-      getSession: jest.fn(() =>
-        Promise.resolve({
-          data: {
-            session: null,
-          },
-        })
-      ),
+      getSession: mockGetSession,
     },
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          single: jest.fn(() =>
-            Promise.resolve({
-              data: null,
-              error: null,
-            })
-          ),
-        })),
-      })),
-    })),
+    from: mockFrom,
   },
 }));
 
@@ -78,7 +81,6 @@ const Layout = require('@/app/_layout').default;
 
 describe('_layout - tests unitaires', () => {
   it('rend le layout sans faire planter l’application', () => {
-    // Test unitaire simple : le layout doit pouvoir être rendu.
     const result = render(React.createElement(Layout));
 
     expect(result).toBeTruthy();

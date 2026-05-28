@@ -1,19 +1,29 @@
 import { supabase } from "@/lib/supabase";
 import { getRoleUtilisateur } from "@/models/admin_ressources.model";
 import {
-  deverrouillerUtilisateurs,
-  getAllUtilisateurs, updateUtilisateur,
-  Utilisateur, UtilisateurForm,
+  deverrouillerUtilisateur,
+  getAllUtilisateurs,
+  updateUtilisateur,
+  Utilisateur,
+  UtilisateurForm,
 } from "@/models/admin_utilisateurs.model";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
 
-const SUPABASE_URL = 'https://sdhqqvztxnbjecekkkkl.supabase.co'; // ← remplacez ici
+const SUPABASE_URL = "https://sdhqqvztxnbjecekkkkl.supabase.co";
 
 const FORM_VIDE: UtilisateurForm = {
-  nom_util: "", prenom_util: "", email_util: "",
-  mdp_util: "", type_util: "Utilisateur", statut_compte_util: "actif",
+  nom_util: "",
+  prenom_util: "",
+  email_util: "",
+  mdp_util: "",
+  type_util: "Utilisateur",
+  statut_compte_util: "actif",
+};
+
+type CreationUtilisateurResponse = {
+  error?: string;
 };
 
 export function useAdminUtilisateurs() {
@@ -31,115 +41,194 @@ export function useAdminUtilisateurs() {
     setTimeout(() => setMessage(""), 3000);
   };
 
+  const normaliserUtilisateur = (utilisateur: Utilisateur): Utilisateur => ({
+    ...utilisateur,
+    type_util:
+      utilisateur.type_util === "Administrateur" ||
+      utilisateur.type_util === "Utilisateur"
+        ? utilisateur.type_util
+        : "Utilisateur",
+    statut_compte_util: utilisateur.statut_compte_util ?? "actif",
+  });
+
   const chargerDonnees = async () => {
     const rawData = await getAllUtilisateurs();
-    const dataNettoyee: Utilisateur[] = rawData.map(u => ({
-      ...u,
-      type_util: (u.type_util === "Administrateur" || u.type_util === "Utilisateur")
-        ? u.type_util
-        : "Utilisateur",
-      statut_compte_util: u.statut_compte_util ?? "actif",
-    }));
-    setUtilisateurs(dataNettoyee);
+    setUtilisateurs(rawData.map(normaliserUtilisateur));
   };
 
-  useEffect(() => {
-    const initialiser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/connexion"); return; }
-      const role = await getRoleUtilisateur(user.id);
-      if (role?.trim().toLowerCase() !== "administrateur") { router.replace("/"); return; }
-      await chargerDonnees();
+  const verifierAccesAdministrateur = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.replace("/connexion");
+      return false;
+    }
+
+    const role = await getRoleUtilisateur(user.id);
+
+    if (role?.trim().toLowerCase() !== "administrateur") {
+      router.replace("/");
+      return false;
+    }
+
+    return true;
+  };
+
+  const initialiser = async () => {
+    try {
+      const accesAutorise = await verifierAccesAdministrateur();
+
+      if (accesAutorise) {
+        await chargerDonnees();
+      }
+    } finally {
       setChargement(false);
-    };
-    initialiser();
-  }, []);
-
-  const validerFormulaire = async () => {
-    if (idEnCoursEdition) {
-      const succes = await updateUtilisateur(idEnCoursEdition, form);
-      if (succes) {
-        afficherMessage("✅ Membre mis à jour !");
-        await chargerDonnees();
-        annulerEdition();
-      }
-    } else {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const url = `${SUPABASE_URL}/functions/v1/creer-utilisateur`;
-        console.log('URL appelée:', url);
-        console.log('Session token:', session?.access_token ? 'présent' : 'absent');
-
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify(form),
-        });
-
-        const json = await res.json();
-        console.log('Réponse:', json);
-
-        if (!res.ok) throw new Error(json.error || 'Erreur lors de la création');
-
-        afficherMessage("✅ Utilisateur créé !");
-        await chargerDonnees();
-        annulerEdition();
-
-      } catch (e: any) {
-        console.log('Erreur fetch:', e.message);
-        afficherMessage(`❌ ${e.message}`);
-      }
     }
   };
 
-  const supprimerUtilisateur = async (id: string) => {
+  useEffect(() => {
+    initialiser();
+  }, []);
+
+  const modifierUtilisateur = async () => {
+    if (!idEnCoursEdition) {
+      return;
+    }
+
+    const succes = await updateUtilisateur(idEnCoursEdition, form);
+
+    if (!succes) {
+      afficherMessage("❌ Erreur lors de la mise à jour.");
+      return;
+    }
+
+    afficherMessage("✅ Membre mis à jour !");
+    await chargerDonnees();
+    annulerEdition();
+  };
+
+  const appelerCreationUtilisateur = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/creer-utilisateur`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify(form),
+    });
+
+    const json = (await response.json()) as CreationUtilisateurResponse;
+
+    if (!response.ok) {
+      throw new Error(json.error || "Erreur lors de la création");
+    }
+  };
+
+  const creerUtilisateur = async () => {
+    try {
+      await appelerCreationUtilisateur();
+      afficherMessage("✅ Utilisateur créé !");
+      await chargerDonnees();
+      annulerEdition();
+    } catch (error) {
+      const messageErreur =
+        error instanceof Error ? error.message : "Erreur lors de la création";
+      afficherMessage(`❌ ${messageErreur}`);
+    }
+  };
+
+  const validerFormulaire = async () => {
+    if (idEnCoursEdition) {
+      await modifierUtilisateur();
+      return;
+    }
+
+    await creerUtilisateur();
+  };
+
+  const executerSuppressionUtilisateur = async (id: string) => {
+    const { error } = await supabase
+      .from("utilisateur")
+      .delete()
+      .eq("id_util", id);
+
+    if (error) {
+      afficherMessage("❌ Erreur lors de la suppression");
+      return;
+    }
+
+    setUtilisateurs((prev) =>
+      prev.filter((utilisateur) => utilisateur.id_util !== id)
+    );
+
+    afficherMessage("✅ Supprimé !");
+  };
+
+  const supprimerUtilisateur = (id: string) => {
     Alert.alert("Confirmation", "Supprimer définitivement ce compte ?", [
       { text: "Annuler", style: "cancel" },
       {
-        text: "Supprimer", style: "destructive", onPress: async () => {
-          const { error } = await supabase
-            .from('utilisateur')
-            .delete()
-            .eq('id_util', id);
-
-          if (!error) {
-            setUtilisateurs(prev => prev.filter(u => u.id_util !== id));
-            afficherMessage("✅ Supprimé !");
-          } else {
-            afficherMessage("❌ Erreur lors de la suppression");
-          }
-        }
-      }
+        text: "Supprimer",
+        style: "destructive",
+        onPress: () => {
+          executerSuppressionUtilisateur(id);
+        },
+      },
     ]);
   };
 
   const deverrouiller = async (id: string) => {
-    if (await deverrouillerUtilisateurs(id)) {
-      await chargerDonnees();
-      afficherMessage("✅ Déverrouillé !");
+    const succes = await deverrouillerUtilisateur(id);
+
+    if (!succes) {
+      afficherMessage("❌ Erreur lors du déverrouillage.");
+      return;
     }
+
+    await chargerDonnees();
+    afficherMessage("✅ Déverrouillé !");
   };
 
-  const preparerModification = (u: Utilisateur) => {
+  const preparerModification = (utilisateur: Utilisateur) => {
     setForm({
-      nom_util: u.nom_util ?? "",
-      prenom_util: u.prenom_util ?? "",
-      email_util: u.email_util ?? "",
+      nom_util: utilisateur.nom_util ?? "",
+      prenom_util: utilisateur.prenom_util ?? "",
+      email_util: utilisateur.email_util ?? "",
       mdp_util: "",
-      type_util: u.type_util === "Administrateur" ? "Administrateur" : "Utilisateur",
-      statut_compte_util: u.statut_compte_util ?? "actif",
+      type_util:
+        utilisateur.type_util === "Administrateur"
+          ? "Administrateur"
+          : "Utilisateur",
+      statut_compte_util: utilisateur.statut_compte_util ?? "actif",
     });
-    setIdEnCoursEdition(u.id_util);
+
+    setIdEnCoursEdition(utilisateur.id_util);
     scrollToTopRef.current?.();
   };
 
-  const annulerEdition = () => { setForm(FORM_VIDE); setIdEnCoursEdition(null); };
+  const annulerEdition = () => {
+    setForm(FORM_VIDE);
+    setIdEnCoursEdition(null);
+  };
 
   return {
-    utilisateurs, form, setForm, message, chargement, idEnCoursEdition,
-    validerFormulaire, supprimerUtilisateur, deverrouiller, preparerModification, annulerEdition, scrollToTopRef
+    utilisateurs,
+    form,
+    setForm,
+    message,
+    chargement,
+    idEnCoursEdition,
+    validerFormulaire,
+    supprimerUtilisateur,
+    deverrouiller,
+    preparerModification,
+    annulerEdition,
+    scrollToTopRef,
   };
 }

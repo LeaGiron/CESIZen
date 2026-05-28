@@ -13,91 +13,151 @@ export function useAdmin() {
   const [message, setMessage] = useState('');
   const [ajoutEnCours, setAjoutEnCours] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      try {
+  const afficherMessageTemporaire = (texte: string) => {
+    setMessage(texte);
+    setTimeout(() => setMessage(''), 3000);
+  };
 
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const verifierUtilisateurConnecte = async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-        if (authError || !user) {
-          console.log("Utilisateur non authentifié");
-          router.replace('/connexion');
-          return;
-        }
+    if (error || !user) {
+      router.replace('/connexion');
+      return null;
+    }
 
-        const { data: profil, error: roleError } = await supabase
-          .from('utilisateur')
-          .select('type_util')
-          .eq('id_util', user.id)
-          .single();
+    return user;
+  };
 
-        console.log("[DEBUG] Rôle récupéré en BDD :", profil?.type_util);
+  const verifierRoleAdministrateur = async (idUtilisateur: string) => {
+    const { data, error } = await supabase
+      .from('utilisateur')
+      .select('type_util')
+      .eq('id_util', idUtilisateur)
+      .single();
 
-        const estAdmin = profil?.type_util?.toLowerCase() === 'administrateur';
+    if (error) {
+      return false;
+    }
 
-        if (roleError || !estAdmin) {
-          console.log("Accès refusé : l'utilisateur n'est pas admin.");
-          Alert.alert("Accès refusé", "Vous n'avez pas les droits nécessaires.");
-          router.replace('/dashboard');
-          return;
-        }
-
-        await chargerRessources();
-      } catch (error) {
-        console.error('Erreur lors de l\'initialisation Admin:', error);
-        router.replace('/dashboard');
-      } finally {
-        setChargement(false);
-      }
-    };
-
-    init();
-  }, []);
+    return data?.type_util?.toLowerCase() === 'administrateur';
+  };
 
   const chargerRessources = async () => {
     const { data, error } = await supabase
       .from('ressource')
       .select('*')
-      .order('id', { ascending: false });
+      .order('id_ress', { ascending: false });
 
     if (error) {
-      console.error('Erreur de chargement des ressources:', error.message);
-    } else {
-      setRessources(data as RessourceAdmin[]);
+      afficherMessageTemporaire('❌ Erreur de chargement des ressources.');
+      return;
+    }
+
+    const ressourcesFormatees: RessourceAdmin[] = (data ?? []).map((item) => ({
+      id: Number(item.id_ress),
+      titre: item.titre_ress,
+      categorie: item.categorie_ress,
+    }));
+
+    setRessources(ressourcesFormatees);
+  };
+
+  const initialiserAdmin = async () => {
+    try {
+      const user = await verifierUtilisateurConnecte();
+
+      if (!user) {
+        return;
+      }
+
+      const estAdmin = await verifierRoleAdministrateur(user.id);
+
+      if (!estAdmin) {
+        Alert.alert(
+          'Accès refusé',
+          "Vous n'avez pas les droits nécessaires."
+        );
+        router.replace('/dashboard');
+        return;
+      }
+
+      await chargerRessources();
+    } catch {
+      router.replace('/dashboard');
+    } finally {
+      setChargement(false);
     }
   };
 
+  useEffect(() => {
+    initialiserAdmin();
+  }, []);
+
   const ajouterRessource = async () => {
     if (!nouveauTitre.trim() || !nouvelleCategorie.trim()) {
-      setMessage('❌ Veuillez remplir tous les champs.');
+      afficherMessageTemporaire('❌ Veuillez remplir tous les champs.');
       return;
     }
 
     try {
       setAjoutEnCours(true);
+
       const { data, error } = await supabase
         .from('ressource')
-        .insert([{ 
-          titre: nouveauTitre.trim(), 
-          categorie: nouvelleCategorie.trim() 
-        }])
+        .insert([
+          {
+            titre_ress: nouveauTitre.trim(),
+            categorie_ress: nouvelleCategorie.trim(),
+            contenu_ress: '',
+            statut_ress: 'publie',
+          },
+        ])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      if (data) {
-        setRessources([data[0] as RessourceAdmin, ...ressources]);
+      if (data?.[0]) {
+        const nouvelleRessource: RessourceAdmin = {
+          id: Number(data[0].id_ress),
+          titre: data[0].titre_ress,
+          categorie: data[0].categorie_ress,
+        };
+
+        setRessources((ressourcesActuelles) => [
+          nouvelleRessource,
+          ...ressourcesActuelles,
+        ]);
+
         setNouveauTitre('');
         setNouvelleCategorie('');
-        setMessage('✅ Ressource ajoutée !');
+        afficherMessageTemporaire('✅ Ressource ajoutée !');
       }
-    } catch (error: any) {
-      setMessage('❌ Erreur lors de l\'ajout.');
-      console.error(error);
+    } catch {
+      afficherMessageTemporaire("❌ Erreur lors de l'ajout.");
     } finally {
       setAjoutEnCours(false);
-      setTimeout(() => setMessage(''), 3000);
     }
+  };
+
+  const confirmerSuppression = async (id: number) => {
+    const { error } = await supabase
+      .from('ressource')
+      .delete()
+      .eq('id_ress', String(id));
+
+    if (error) {
+      afficherMessageTemporaire('❌ Impossible de supprimer.');
+      return;
+    }
+
+    setRessources((prev) => prev.filter((item) => item.id !== id));
+    afficherMessageTemporaire('✅ Ressource supprimée.');
   };
 
   const supprimerRessource = (id: number) => {
@@ -109,28 +169,22 @@ export function useAdmin() {
         {
           text: 'Supprimer',
           style: 'destructive',
-          onPress: async () => {
-            const { error } = await supabase
-              .from('ressource')
-              .delete()
-              .eq('id', id);
-
-            if (error) {
-              setMessage('❌ Impossible de supprimer.');
-            } else {
-              setRessources((prev) => prev.filter((item) => item.id !== id));
-              setMessage('✅ Ressource supprimée.');
-              setTimeout(() => setMessage(''), 3000);
-            }
-          },
+          onPress: () => confirmerSuppression(id),
         },
       ]
     );
   };
 
   return {
-    ressources, chargement, nouveauTitre, setNouveauTitre,
-    nouvelleCategorie, setNouvelleCategorie, message,
-    ajoutEnCours, ajouterRessource, supprimerRessource,
+    ressources,
+    chargement,
+    nouveauTitre,
+    setNouveauTitre,
+    nouvelleCategorie,
+    setNouvelleCategorie,
+    message,
+    ajoutEnCours,
+    ajouterRessource,
+    supprimerRessource,
   };
 }

@@ -25,7 +25,7 @@ type UseAdminRessourcesReturn = {
   setForm: React.Dispatch<React.SetStateAction<RessourceForm>>;
   message: string;
   chargement: boolean;
-  idEnCoursEdition: string | null; 
+  idEnCoursEdition: string | null;
   validerFormulaire: () => Promise<void>;
   supprimerRessource: (id: string) => void;
   preparerModification: (ressource: Ressource) => void;
@@ -48,35 +48,51 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
     setTimeout(() => setMessage(""), 3000);
   };
 
-  useEffect(() => {
-    const initialiser = async () => {
-      setChargement(true);
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+  const chargerRessources = async () => {
+    const data = await getAllRessources();
+    setRessources((data as Ressource[]) ?? []);
+  };
 
-        if (error || !user) {
-          router.replace("/connexion");
-          return;
-        }
+  const verifierAccesAdministrateur = async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-        const role = await getRoleUtilisateur(user.id);
+    if (error || !user) {
+      router.replace("/connexion");
+      return false;
+    }
 
-        if (!role || role.trim().toLowerCase() !== "administrateur") {
-          Alert.alert("Accès refusé", "Vous n'avez pas les droits administrateur.");
-          router.replace("/"); 
-          return;
-        }
+    const role = await getRoleUtilisateur(user.id);
+    const estAdmin = role?.trim().toLowerCase() === "administrateur";
 
-        const data = await getAllRessources();
-        setRessources(data as Ressource[] ?? []);
-      } catch (err) {
-        console.error("Erreur initialisation admin:", err);
-        router.replace("/");
-      } finally {
-        setChargement(false);
+    if (!estAdmin) {
+      Alert.alert("Accès refusé", "Vous n'avez pas les droits administrateur.");
+      router.replace("/");
+      return false;
+    }
+
+    return true;
+  };
+
+  const initialiser = async () => {
+    setChargement(true);
+
+    try {
+      const accesAutorise = await verifierAccesAdministrateur();
+
+      if (accesAutorise) {
+        await chargerRessources();
       }
-    };
+    } catch {
+      router.replace("/");
+    } finally {
+      setChargement(false);
+    }
+  };
 
+  useEffect(() => {
     initialiser();
   }, []);
 
@@ -87,8 +103,8 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
       categorie_ress: ressource.categorie_ress,
       statut_ress: ressource.statut_ress,
     });
-    setIdEnCoursEdition(ressource.id_ress);
-    
+
+    setIdEnCoursEdition(String(ressource.id_ress));
     scrollToTopRef.current?.();
   };
 
@@ -97,47 +113,89 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
     setIdEnCoursEdition(null);
   };
 
+  const creerFormulaireSecurise = (): RessourceForm => ({
+    titre_ress: form.titre_ress.trim(),
+    contenu_ress: form.contenu_ress,
+    categorie_ress: form.categorie_ress || "Stress",
+    statut_ress: form.statut_ress ?? "brouillon",
+  });
+
+  const mettreAJourRessource = async (formSafe: RessourceForm) => {
+    if (!idEnCoursEdition) {
+      return;
+    }
+
+    const succes = await updateRessource(
+      Number(idEnCoursEdition),
+      formSafe
+    );
+
+    if (!succes) {
+      afficherMessage("❌ Erreur lors de la modification.");
+      return;
+    }
+
+    setRessources((prev) =>
+      prev.map((ressource) =>
+        String(ressource.id_ress) === idEnCoursEdition
+          ? { ...ressource, ...formSafe }
+          : ressource
+      )
+    );
+
+    afficherMessage("✅ Ressource mise à jour !");
+  };
+
+  const ajouterRessource = async (formSafe: RessourceForm) => {
+    const nouvelle = await insertRessource(formSafe);
+
+    if (!nouvelle) {
+      afficherMessage("❌ Erreur lors de l'ajout.");
+      return;
+    }
+
+    setRessources((prev) => [nouvelle as Ressource, ...prev]);
+    afficherMessage("✅ Ressource ajoutée !");
+  };
+
   const validerFormulaire = async () => {
     if (!form.titre_ress.trim()) {
       afficherMessage("⚠️ Le titre est obligatoire.");
       return;
     }
 
-    const formSafe: RessourceForm = {
-      titre_ress: form.titre_ress.trim(),
-      contenu_ress: form.contenu_ress,
-      categorie_ress: form.categorie_ress || "Stress",
-      statut_ress: form.statut_ress ?? "brouillon",
-    };
+    const formSafe = creerFormulaireSecurise();
 
     try {
-      if (idEnCoursEdition !== null) {
-        const succes = await updateRessource(idEnCoursEdition, formSafe);
-        if (succes) {
-          setRessources(prev =>
-            prev.map(r => r.id_ress === idEnCoursEdition ? { ...r, ...formSafe } : r)
-          );
-          afficherMessage("✅ Ressource mise à jour !");
-        } else {
-          afficherMessage("❌ Erreur lors de la modification.");
-        }
+      if (idEnCoursEdition) {
+        await mettreAJourRessource(formSafe);
       } else {
-        const nouvelle = await insertRessource(formSafe);
-        if (nouvelle) {
-          setRessources(prev => [nouvelle as Ressource, ...prev]);
-          afficherMessage("✅ Ressource ajoutée !");
-        } else {
-          afficherMessage("❌ Erreur lors de l'ajout.");
-        }
+        await ajouterRessource(formSafe);
       }
+
       annulerEdition();
-    } catch (err) {
+    } catch {
       afficherMessage("❌ Une erreur est survenue.");
     }
   };
 
+  const executerSuppression = async (id: string) => {
+    const succes = await deleteRessource(Number(id));
+
+    if (!succes) {
+      afficherMessage("❌ Erreur lors de la suppression.");
+      return;
+    }
+
+    setRessources((prev) => prev.filter((item) => String(item.id_ress) !== id));
+    afficherMessage("✅ Ressource supprimée !");
+
+    if (idEnCoursEdition === id) {
+      annulerEdition();
+    }
+  };
+
   const supprimerRessource = (id: string) => {
-    // ✅ Utilisation de l'Alert native mobile pour confirmer
     Alert.alert(
       "Supprimer la ressource",
       "Cette action est irréversible. Voulez-vous continuer ?",
@@ -146,15 +204,8 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: async () => {
-            const succes = await deleteRessource(id);
-            if (succes) {
-              setRessources(prev => prev.filter(item => item.id_ress !== id));
-              afficherMessage("✅ Ressource supprimée !");
-              if (idEnCoursEdition === id) annulerEdition();
-            } else {
-              afficherMessage("❌ Erreur lors de la suppression.");
-            }
+          onPress: () => {
+            executerSuppression(id);
           },
         },
       ]
@@ -162,8 +213,16 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
   };
 
   return {
-    ressources, form, setForm, message, chargement,
-    idEnCoursEdition, validerFormulaire, supprimerRessource,
-    preparerModification, annulerEdition, scrollToTopRef,
+    ressources,
+    form,
+    setForm,
+    message,
+    chargement,
+    idEnCoursEdition,
+    validerFormulaire,
+    supprimerRessource,
+    preparerModification,
+    annulerEdition,
+    scrollToTopRef,
   };
 }
