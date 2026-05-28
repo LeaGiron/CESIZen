@@ -1,82 +1,121 @@
+# Nom du workflow affiché dans GitHub Actions
 name: CI CESIZen
 
+# Déclenchement automatique du workflow
 on:
+  # Lance la CI lors d’un push sur ces branches
   push:
     branches:
       - main
       - develop
       - "feature/**"
       - "ci/**"
+
+  # Lance aussi la CI lors d’une Pull Request
   pull_request:
     branches:
       - main
       - develop
 
+# Définition des jobs de la pipeline
 jobs:
+
+  # =========================
+  # JOB APPLICATION WEB
+  # =========================
   web:
+    # Nom affiché dans GitHub Actions
     name: Vérification application web
+
+    # Système utilisé pour exécuter la CI
     runs-on: ubuntu-latest
 
+    # Définit le dossier de travail par défaut
     defaults:
       run:
         working-directory: CESIZen-Web
 
+    # Étapes du workflow
     steps:
+
+      # Récupération du dépôt GitHub
       - name: Récupération du code source
         uses: actions/checkout@v4
 
+      # Installation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # Installation des dépendances npm
       - name: Installation des dépendances
         run: npm install --legacy-peer-deps
 
+      # Analyse statique du code avec ESLint
+      # continue-on-error permet de continuer la CI même si des erreurs sont détectées
       - name: Analyse statique du code
         run: npm run lint --if-present
         continue-on-error: true
 
+      # Exécution des tests automatisés
       - name: Exécution des tests automatisés
         run: npm test --if-present
         continue-on-error: true
 
+      # Génération du build de production
       - name: Génération du build
         run: npm run build --if-present
         continue-on-error: true
 
+      # Vérification des vulnérabilités des dépendances npm
       - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
         continue-on-error: true
 
+  # =========================
+  # JOB APPLICATION MOBILE
+  # =========================
   mobile:
+    # Nom affiché dans GitHub Actions
     name: Vérification application mobile
+
+    # Machine virtuelle utilisée
     runs-on: ubuntu-latest
 
+    # Dossier de travail par défaut
     defaults:
       run:
         working-directory: CESIZen-Mobile
 
+    # Étapes exécutées pour le mobile
     steps:
+
+      # Téléchargement du code source
       - name: Récupération du code source
         uses: actions/checkout@v4
 
+      # Installation de Node.js
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # Installation des dépendances du projet mobile
       - name: Installation des dépendances
         run: npm install --legacy-peer-deps
 
+      # Analyse du code avec ESLint
       - name: Analyse statique du code
         run: npm run lint --if-present
         continue-on-error: true
 
+      # Exécution des tests automatisés
       - name: Exécution des tests automatisés
         run: npm test --if-present
         continue-on-error: true
 
+      # Audit de sécurité npm
       - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
         continue-on-error: true
