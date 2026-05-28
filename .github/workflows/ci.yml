@@ -56,22 +56,18 @@ jobs:
       # continue-on-error permet de continuer la CI même si des erreurs sont détectées
       - name: Analyse statique du code
         run: npm run lint --if-present
-        continue-on-error: true
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
         run: npm test --if-present
-        continue-on-error: true
 
       # Génération du build de production
       - name: Génération du build
         run: npm run build --if-present
-        continue-on-error: true
 
       # Vérification des vulnérabilités des dépendances npm
       - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
-        continue-on-error: true
 
   # =========================
   # JOB APPLICATION MOBILE
@@ -108,14 +104,11 @@ jobs:
       # Analyse du code avec ESLint
       - name: Analyse statique du code
         run: npm run lint --if-present
-        continue-on-error: true
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
         run: npm test --if-present
-        continue-on-error: true
 
       # Audit de sécurité npm
       - name: Audit de sécurité des dépendances
         run: npm audit --audit-level=high
-        continue-on-error: true
