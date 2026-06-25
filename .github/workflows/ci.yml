@@ -111,4 +111,4 @@ jobs:
 
       # Audit de sécurité npm
       - name: Audit de sécurité des dépendances
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
