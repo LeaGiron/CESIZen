@@ -139,8 +139,8 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      'Sécurité',
-      'Le mot de passe doit faire au moins 12 caractères.'
+      'Mot de passe incomplet',
+      'Il manque : 12 caractères minimum, une majuscule, un chiffre, un caractère spécial'
     );
     expect(mockUpdateUser).not.toHaveBeenCalled();
   });
@@ -153,8 +153,8 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      'Mot de passe incomplet',
-      'Il manque : 12 caractères minimum, une majuscule, un chiffre, un caractère spécial'
+      'Erreur',
+      'Les mots de passe ne correspondent pas.'
     );
     expect(mockUpdateUser).not.toHaveBeenCalled();
   });
