@@ -114,6 +114,10 @@ jest.mock('@/lib/supabase', () => ({
       onAuthStateChange: jest.fn().mockReturnValue({
         data: { subscription: { unsubscribe: jest.fn() } },
       }),
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: 'fake-token' } },
+        error: null,
+      }),
     },
   },
 }));
@@ -149,8 +153,8 @@ describe('nouveau_mot_de_passe - tests de non-régression', () => {
     fireEvent.press(getByText('Enregistrer les modifications'));
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      'Erreur',
-      'Les mots de passe ne correspondent pas.'
+      'Mot de passe incomplet',
+      'Il manque : 12 caractères minimum, une majuscule, un chiffre, un caractère spécial'
     );
     expect(mockUpdateUser).not.toHaveBeenCalled();
   });
