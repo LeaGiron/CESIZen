@@ -1,9 +1,20 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-const getSupabaseUrl = () => process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-const getSupabaseKey = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+let _supabase = null
 
-export const supabase = createBrowserClient(
-  getSupabaseUrl(),
-  getSupabaseKey()
-)
+export const getSupabase = () => {
+  if (!_supabase) {
+    _supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+  }
+  return _supabase
+}
+
+// Compatibilité avec les imports existants
+export const supabase = new Proxy({}, {
+  get(_, prop) {
+    return getSupabase()[prop]
+  }
+})
