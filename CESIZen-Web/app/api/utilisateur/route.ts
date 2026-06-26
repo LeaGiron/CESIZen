@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ success: true, utilisateur: data });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ success: false, message: "Erreur serveur" }, { status: 500 });
   }
 }

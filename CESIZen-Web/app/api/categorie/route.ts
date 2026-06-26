@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
+import { NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
 import * as RessourceController from "../../../controllers/ressource.controller"; // Controller pour appeler les fonctions métier
 
 // Lister les catégories
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         // 1 Appelle le controller pour récupérer les catégories
         const result = await RessourceController.afficherCategories()
