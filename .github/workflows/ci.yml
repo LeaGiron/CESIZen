@@ -58,7 +58,7 @@ jobs:
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
-        run: npm test --if-present
+        run: npm test
 
       # Génération du build de production
       - name: Génération du build
