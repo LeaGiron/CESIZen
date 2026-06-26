@@ -106,3 +106,6 @@ export default function AdminUtilisateursPage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'
+
+export const dynamic = 'force-dynamic'
