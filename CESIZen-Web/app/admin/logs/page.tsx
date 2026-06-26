@@ -152,4 +152,3 @@ export default function AdminLogsPage() {
 
 export const dynamic = 'force-dynamic'
 
-export const dynamic = 'force-dynamic'
