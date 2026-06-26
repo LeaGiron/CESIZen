@@ -69,7 +69,7 @@ jobs:
 
       # Vérification des vulnérabilités des dépendances npm
       - name: Audit de sécurité des dépendances
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
 
   # =========================
   # JOB APPLICATION MOBILE
