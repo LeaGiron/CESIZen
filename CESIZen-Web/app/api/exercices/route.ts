@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
+import { NextRequest, NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
 import * as ExerciceController from "../../../controllers/exercice_respiration.controller"; // Controller pour appeler les fonctions métier
 
 // Lister les exercices
