@@ -138,3 +138,4 @@ export default function DetailRessourcePage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'
