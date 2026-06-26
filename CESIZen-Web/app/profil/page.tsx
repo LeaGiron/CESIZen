@@ -66,6 +66,7 @@ export default function ProfilPage() {
       setChargement(false);
     };
     chargerProfil();
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUpdate = async () => {
@@ -102,8 +103,8 @@ export default function ProfilPage() {
       try {
         setMessage('⏳ Suppression définitive...');
         await supprimerCompteDefinitivement();
-      } catch (err: any) {
-        setMessage(`❌ Erreur: ${err.message}`);
+      } catch (err: unknown) {
+        setMessage(`❌ Erreur: ${(err instanceof Error ? err.message : "Erreur inconnue")}`);
       }
     }
   };

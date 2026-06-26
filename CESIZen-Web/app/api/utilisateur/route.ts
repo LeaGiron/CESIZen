@@ -1,14 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Initialisation de Supabase (vérifie tes variables d'env)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export async function GET(request: Request) {
-  // Récupération de l'ID depuis l'URL (?id=...)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
@@ -28,7 +26,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ success: true, utilisateur: data });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ success: false, message: "Erreur serveur" }, { status: 500 });
   }
 }

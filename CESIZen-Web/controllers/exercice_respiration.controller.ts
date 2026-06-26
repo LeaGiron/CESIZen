@@ -6,7 +6,7 @@ export async function afficherExercices() {
     return { success: true, data };
   } catch (error: any) {
     console.error('afficherExercices error:', error);
-    return { success: false, message: error.message };
+    return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
 }
 
@@ -22,7 +22,7 @@ export async function creerExercice(id_util: string, exercice: {
     return { success: true, data };
   } catch (error: any) {
     console.error('creerExercice error:', error);
-    return { success: false, message: error.message };
+    return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
 }
 
@@ -38,7 +38,7 @@ export async function modifierExercice(id_exer: string, id_util: string, exercic
     return { success: true, data };
   } catch (error: any) {
     console.error('modifierExercice error:', error);
-    return { success: false, message: error.message };
+    return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
 }
 
@@ -48,6 +48,6 @@ export async function supprimerExercice(id_exer: string, id_util: string) {
     return { success: true };
   } catch (error: any) {
     console.error('supprimerExercice error:', error);
-    return { success: false, message: error.message };
+    return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
 }

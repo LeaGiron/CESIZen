@@ -1,11 +1,23 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase environment variables')
+let _supabase = null
+
+export const getSupabase = () => {
+  if (!_supabase) {
+    _supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+    )
+  }
+  return _supabase
 }
 
-// UNE SEULE instance, SSR-aware, lit les cookies de session
-export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+export const supabase = {
+  get auth() { return getSupabase().auth },
+  get from() { return getSupabase().from.bind(getSupabase()) },
+  get rpc() { return getSupabase().rpc.bind(getSupabase()) },
+  get storage() { return getSupabase().storage },
+  get functions() { return getSupabase().functions },
+  get realtime() { return getSupabase().realtime },
+  get channel() { return getSupabase().channel.bind(getSupabase()) },
+}

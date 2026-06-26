@@ -20,7 +20,7 @@ export default function HomepagePage() {
         <h1 className="sr-only">CESIZen - Votre compagnon santé mentale</h1>
         
         <p className="text-center text-gray-600 text-base leading-relaxed px-2">
-          Vous accompagne à l'aide de ressources validées et d'exercices
+          Vous accompagne à l&apos;aide de ressources validées et d&apos;exercices
           personnalisés pour votre santé mentale.
         </p>
       </div>
