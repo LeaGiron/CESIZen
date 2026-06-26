@@ -54,7 +54,7 @@ jobs:
 
       # Analyse statique du code avec ESLint
       - name: Analyse statique du code
-        run: npm run lint --if-present
+        run: npm run lint
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
@@ -105,7 +105,7 @@ jobs:
 
       # Analyse du code avec ESLint
       - name: Analyse statique du code
-        run: npm run lint --if-present
+        run: npm run lint
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
