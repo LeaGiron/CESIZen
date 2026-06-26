@@ -23,7 +23,7 @@ describe("exercice.model - tests unitaires", () => {
 
     // Vérifie que la suppression ne renvoie pas d'erreur
     const deleted = await deleteExercice("e1");
-    expect(deleted).toBeNull();
+    expect(deleted).toBe(true);
   });
 
 });
