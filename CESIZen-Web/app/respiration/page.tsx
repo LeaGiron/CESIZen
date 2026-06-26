@@ -173,3 +173,4 @@ export default function RespirationPage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'

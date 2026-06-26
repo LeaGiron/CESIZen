@@ -156,3 +156,4 @@ export default function RessourcesPage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'
