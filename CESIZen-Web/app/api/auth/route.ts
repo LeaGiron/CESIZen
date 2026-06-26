@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     } catch (error: unknown) {
         return NextResponse.json(
-            { success: false, message: error.message || "Erreur serveur." },
+            { success: false, message: (error instanceof Error ? error.message : "Erreur serveur.") },
             { status: 400 }
         );
     }

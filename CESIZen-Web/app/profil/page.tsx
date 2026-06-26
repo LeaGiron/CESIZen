@@ -104,7 +104,7 @@ export default function ProfilPage() {
         setMessage('⏳ Suppression définitive...');
         await supprimerCompteDefinitivement();
       } catch (err: unknown) {
-        setMessage(`❌ Erreur: ${err.message}`);
+        setMessage(`❌ Erreur: ${(err instanceof Error ? err.message : "Erreur inconnue")}`);
       }
     }
   };
