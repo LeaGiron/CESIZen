@@ -139,8 +139,9 @@ export default function ProfilPage() {
           <h2 className="text-base font-semibold text-gray-800">Mes informations</h2>
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Prénom</label>
+              <label htmlFor="prenom" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Prénom</label>
               <input
+                id="prenom"
                 type="text"
                 value={prenom_util}
                 onChange={(e) => setPrenom(e.target.value)}
@@ -148,8 +149,9 @@ export default function ProfilPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Nom</label>
+              <label htmlFor="nom" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Nom</label>
               <input
+                id="nom"
                 type="text"
                 value={nom_util}
                 onChange={(e) => setNom(e.target.value)}
@@ -157,8 +159,9 @@ export default function ProfilPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Email</label>
+              <label htmlFor="email" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Email</label>
               <input
+                id="email"
                 type="email"
                 value={email_util}
                 onChange={(e) => setEmail(e.target.value)}

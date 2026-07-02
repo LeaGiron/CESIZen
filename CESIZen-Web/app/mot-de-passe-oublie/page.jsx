@@ -82,3 +82,4 @@ export default function MotDePasseOubliePage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'
