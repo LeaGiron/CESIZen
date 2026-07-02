@@ -18,4 +18,5 @@ CESIZen-Mobile/.env
 .DS_Store
 
 # Expo / React Native
-.expo/
+.expo/.scannerwork/
+.scannerwork/

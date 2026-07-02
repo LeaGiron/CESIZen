@@ -121,3 +121,5 @@ export default function ConnexionPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic'
