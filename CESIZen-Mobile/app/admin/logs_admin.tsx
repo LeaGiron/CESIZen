@@ -47,57 +47,6 @@ export default function AdminLogsPage() {
     });
   };
 
-  const renderContenu = () => {
-    if (chargement) {
-      return <ActivityIndicator color="#22C55E" style={{ marginTop: 40 }} />;
-    }
-
-    if (logs.length === 0) {
-      return <Text style={styles.emptyText}>Aucun log trouvé.</Text>;
-    }
-
-    return logs.map((log) => (
-      <View key={log.id_log} style={styles.logCard}>
-        {/* Ligne 1 */}
-        <View style={styles.cardHeader}>
-          <View style={styles.actionInfo}>
-            <Ionicons 
-              name={(ICONE_ACTION[log.type_action_log]?.name ?? 'clipboard-outline') as any}
-              size={18}
-              color={ICONE_ACTION[log.type_action_log]?.color ?? '#6B7280'}
-            />
-            <Text style={styles.actionName}>{log.type_action_log.replace(/_/g, ' ')}</Text>
-          </View>
-          <View style={[
-            styles.statusBadge, 
-            { backgroundColor: BADGE_STATUT[log.statut_log].bg, borderColor: BADGE_STATUT[log.statut_log].border }
-          ]}>
-            <Text style={[styles.statusBadgeText, { color: BADGE_STATUT[log.statut_log].text }]}>
-              {log.statut_log}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.userInfo}>
-          <Ionicons name="person-circle-outline" size={14} color="#9CA3AF" />
-          {log.utilisateur ? (
-            <Text style={styles.userText}>
-              {log.utilisateur.prenom_util} {log.utilisateur.nom_util}{' '}
-              <Text style={styles.userEmail}>({log.utilisateur.email_util})</Text>
-            </Text>
-          ) : (
-            <Text style={styles.userTextAnonyme}>Anonyme / compte supprimé</Text>
-          )}
-        </View>
-
-        <View style={styles.dateRow}>
-          <Ionicons name="time-outline" size={12} color="#9CA3AF" style={{marginRight: 4}} />
-          <Text style={styles.dateText}>{formatDate(log.date_action_log)}</Text>
-        </View>
-      </View>
-    ));
-  };
-
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -156,7 +105,52 @@ export default function AdminLogsPage() {
         </TouchableOpacity>
 
         {/* LISTE */}
-        {renderContenu()}
+        {chargement ? (
+          <ActivityIndicator color="#22C55E" style={{ marginTop: 40 }} />
+        ) : logs.length === 0 ? (
+          <Text style={styles.emptyText}>Aucun log trouvé.</Text>
+        ) : (
+          logs.map((log) => (
+            <View key={log.id_log} style={styles.logCard}>
+              {/* Ligne 1 */}
+              <View style={styles.cardHeader}>
+                <View style={styles.actionInfo}>
+                  <Ionicons 
+                    name={(ICONE_ACTION[log.type_action_log]?.name ?? 'clipboard-outline') as any}
+                    size={18}
+                    color={ICONE_ACTION[log.type_action_log]?.color ?? '#6B7280'}
+                  />
+                  <Text style={styles.actionName}>{log.type_action_log.replace(/_/g, ' ')}</Text>
+                </View>
+                <View style={[
+                  styles.statusBadge, 
+                  { backgroundColor: BADGE_STATUT[log.statut_log].bg, borderColor: BADGE_STATUT[log.statut_log].border }
+                ]}>
+                  <Text style={[styles.statusBadgeText, { color: BADGE_STATUT[log.statut_log].text }]}>
+                    {log.statut_log}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.userInfo}>
+                <Ionicons name="person-circle-outline" size={14} color="#9CA3AF" />
+                {log.utilisateur ? (
+                  <Text style={styles.userText}>
+                    {log.utilisateur.prenom_util} {log.utilisateur.nom_util}{' '}
+                    <Text style={styles.userEmail}>({log.utilisateur.email_util})</Text>
+                  </Text>
+                ) : (
+                  <Text style={styles.userTextAnonyme}>Anonyme / compte supprimé</Text>
+                )}
+              </View>
+
+              <View style={styles.dateRow}>
+                <Ionicons name="time-outline" size={12} color="#9CA3AF" style={{marginRight: 4}} />
+                <Text style={styles.dateText}>{formatDate(log.date_action_log)}</Text>
+              </View>
+            </View>
+          ))
+        )}
       </ScrollView>
 
       <AdminFooter />
