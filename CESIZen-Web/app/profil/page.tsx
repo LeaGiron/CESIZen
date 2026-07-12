@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import BoutonRetour from '@/components/Bouton_retour';
 import { FooterNav } from '@/components/Footer';
-import { supprimerCompteDefinitivement } from '@/controllers/auth.controller';
 
 export default function ProfilPage() {
   const supabase = createBrowserClient(
@@ -101,9 +100,22 @@ export default function ProfilPage() {
     if (confirmation) {
       try {
         setMessage('⏳ Suppression définitive...');
-        await supprimerCompteDefinitivement();
-      } catch (err: any) {
-        setMessage(`❌ Erreur: ${err.message}`);
+
+        const response = await fetch('/api/auth/supprimer-compte', {
+          method: 'POST',
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          setMessage(`❌ ${result.message || 'Erreur lors de la suppression.'}`);
+          return;
+        }
+
+        await supabase.auth.signOut();
+        router.replace('/connexion');
+      } catch {
+        setMessage('❌ Erreur serveur lors de la suppression.');
       }
     }
   };
@@ -194,6 +206,9 @@ export default function ProfilPage() {
             🗑️ Supprimer mon compte définitivement
           </button>
         </section>
+
+        <a href="/api/utilisateur/export" download>Exporter mes données</a>
+
       </main>
 
       <FooterNav estConnecte={true} estAdmin={estAdmin} />

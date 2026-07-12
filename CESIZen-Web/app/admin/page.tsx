@@ -104,7 +104,7 @@ export default function AdminPage() {
 
             {idEnCoursEdition && (
               <button type="button" onClick={annulerEdition} className="text-gray-400 text-sm py-1 hover:underline text-center">
-                Annuler l'édition
+                Annuler l&apos;édition
               </button>
             )}
           </form>

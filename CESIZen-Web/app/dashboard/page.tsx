@@ -26,7 +26,7 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold text-green-600">
             Bonjour {prenom_util} !
           </h2>
-          <p className="text-gray-500">Comment allez-vous aujourd'hui ?</p>
+          <p className="text-gray-500">Comment allez-vous aujourd&apos;hui ?</p>
 
           {!estConnecte && (
             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl w-full text-left">
@@ -64,7 +64,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <Link href={`/ressources/${res.id_ress}`} className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 rounded-lg transition-colors text-center block">
-                      Lire l'article
+                      Lire l&apos;article
                     </Link>
                   </div>
                 </div>

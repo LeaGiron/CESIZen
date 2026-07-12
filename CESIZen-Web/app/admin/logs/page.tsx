@@ -49,7 +49,7 @@ export default function AdminLogsPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-4">
         <div className="flex items-center gap-2 mb-1">
-          <h1 className="text-lg font-semibold text-gray-900">Journaux d'activité</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Journaux d&apos;activité</h1>
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-800">
             Admin
           </span>
