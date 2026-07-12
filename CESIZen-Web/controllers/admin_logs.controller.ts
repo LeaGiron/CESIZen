@@ -2,6 +2,8 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getRoleUtilisateur } from '@/models/admin_ressource.model';
 
 export type Log = {
   id_log: string;
@@ -44,10 +46,30 @@ export function useAdminLogs() {
   const [filtreStatut, setFiltreStatut] = useState<string>('Tous');
   const [filtreAction, setFiltreAction] = useState<string>('Tous');
   const [recherche, setRecherche] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchLogs = async () => {
       setChargement(true);
+
+      // Le middleware protège déjà la page /admin/logs, mais on revérifie ici
+      // avant d'interroger les logs : cette page ne doit jamais dépendre d'un seul
+      // niveau de protection (voir aussi les règles d'accès sur la table log_activite).
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        setChargement(false);
+        router.push('/connexion');
+        return;
+      }
+
+      const role = await getRoleUtilisateur(user.id);
+
+      if (!role || role.trim().toLowerCase() !== 'administrateur') {
+        setChargement(false);
+        router.push('/');
+        return;
+      }
 
       let query = supabase
         .from('log_activite')
