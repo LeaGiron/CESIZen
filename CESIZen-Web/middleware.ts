@@ -53,20 +53,9 @@ export async function middleware(request: NextRequest) {
 
   // 🛡️ Protection des routes /admin : admins uniquement
   if (path.startsWith('/admin')) {
-    console.log("--- 🛡️ MIDDLEWARE SCAN ---")
-    console.log("📍 Chemin visité :", path)
-
-    const cookieName = `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].split('//')[1]}-auth-token`
-    const hasCookie = request.cookies.has(cookieName)
-    console.log("🍪 Cookie session détecté :", hasCookie ? "OUI ✅" : "NON ❌")
-
     if (!user) {
-      console.log("👤 Statut : Aucun utilisateur → redirection /connexion")
-      console.log("--------------------------")
       return NextResponse.redirect(new URL('/connexion', request.url))
     }
-
-    console.log("👤 Statut : Connecté (ID:", user.id, ")")
 
     const { data: utilisateur } = await supabase
       .from('utilisateur')
@@ -74,16 +63,9 @@ export async function middleware(request: NextRequest) {
       .eq('id_util', user.id)
       .single()
 
-    console.log("📊 Rôle en base :", utilisateur?.type_util || "Inconnu")
-
     if (utilisateur?.type_util !== 'Administrateur') {
-      console.log("🚫 Accès refusé : Pas admin → redirection /dashboard")
-      console.log("--------------------------")
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-
-    console.log("🔓 Accès autorisé")
-    console.log("--------------------------")
 
     // ✅ Empêche le cache navigateur sur les pages admin
     // Sans ça, le bouton "retour" affiche la page depuis le cache sans repasser par le middleware
@@ -94,7 +76,10 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-// /dashboard accessible à tous (pas dans le matcher)
+// Le middleware protège les pages /admin et /connexion.
+// Les routes /api/* ne passent pas par le middleware : chacune vérifie elle-même
+// la session et le rôle (voir /api/log, /api/ressource, /api/admin/*), ce qui est
+// plus fiable qu'une seule barrière centrale (voir CVE-2025-29927 sur le middleware Next.js).
 export const config = {
   matcher: ['/admin/:path*', '/connexion'],
 }
