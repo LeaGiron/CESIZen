@@ -62,7 +62,6 @@ export default function AdminExercicesPage() {
                   type="number"
                   min={1}
                   placeholder="ex: 4"
-                  id="inspiration"
                   value={form.duree_inspiration_defaut_exer}
                   onChange={e => setForm({ ...form, duree_inspiration_defaut_exer: Number(e.target.value) })}
                   required
@@ -76,7 +75,6 @@ export default function AdminExercicesPage() {
                   type="number"
                   min={0}
                   placeholder="ex: 4"
-                  id="apnee"
                   value={form.duree_apnee_defaut_exer}
                   onChange={e => setForm({ ...form, duree_apnee_defaut_exer: Number(e.target.value) })}
                   required
@@ -90,7 +88,6 @@ export default function AdminExercicesPage() {
                   type="number"
                   min={1}
                   placeholder="ex: 6"
-                  id="expiration"
                   value={form.duree_expiration_defaut_exer}
                   onChange={e => setForm({ ...form, duree_expiration_defaut_exer: Number(e.target.value) })}
                   required

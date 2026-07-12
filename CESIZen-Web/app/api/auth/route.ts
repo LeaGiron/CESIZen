@@ -17,9 +17,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(result, { status: 200 });
         }  
 
-    } catch (error: any) {
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Erreur serveur.";
         return NextResponse.json(
-            { success: false, message: error.message || "Erreur serveur." },
+            { success: false, message },
             { status: 400 }
         );
     }

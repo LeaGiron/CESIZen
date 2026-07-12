@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
+import { NextResponse } from "next/server"; // Next.js : gérer les requêtes et les réponses
 import { createClient } from "@/lib/supabase/server"; // Client Supabase côté serveur (lit la session depuis les cookies)
 import * as LogActiviteController from "../../../controllers/log_activite.controller"; // Controller pour appeler les fonctions métier
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         // 1 Vérifier que l'appelant est authentifié (session lue côté serveur, jamais un id transmis par le client)
         const supabase = await createClient();

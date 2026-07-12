@@ -39,4 +39,21 @@ export async function POST(request: Request) {
       .delete()
       .eq('id_util', userId)
 
-    if
+    if (dbError) {
+      return NextResponse.json({ error: 'Erreur lors de la suppression des données' }, { status: 500 })
+    }
+
+    // 4. Supprimer aussi le compte d'authentification (sinon l'email reste bloqué côté Supabase Auth)
+    const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+
+    if (authDeleteError) {
+      return NextResponse.json({ error: 'Erreur lors de la suppression du compte' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, message: 'Utilisateur supprimé avec succès' })
+
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Erreur serveur.';
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}

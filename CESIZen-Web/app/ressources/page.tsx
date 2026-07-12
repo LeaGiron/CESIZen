@@ -143,7 +143,7 @@ export default function RessourcesPage() {
                     href={`/ressources/${res.id_ress}`}
                     className="mt-3 bg-green-500 text-white text-xs font-bold py-2 rounded-xl text-center flex items-center justify-center min-h-[32px]"
                   >
-                    Lire l'article
+                    Lire l&apos;article
                   </Link>
                 </div>
               </li>

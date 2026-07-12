@@ -57,11 +57,11 @@ export default function AdminUtilisateursPage() {
             )}
 
             <div className="grid grid-cols-2 gap-2">
-              <select value={form.type_util} onChange={e => setForm({...form, type_util: e.target.value as any})} className="h-12 bg-gray-50 rounded-xl px-4 text-sm border border-gray-100">
+              <select value={form.type_util} onChange={e => setForm({...form, type_util: e.target.value as "Utilisateur" | "Administrateur"})} className="h-12 bg-gray-50 rounded-xl px-4 text-sm border border-gray-100">
                 <option value="Utilisateur">Utilisateur</option>
                 <option value="Administrateur">Administrateur</option>
               </select>
-              <select value={form.statut_compte_util} onChange={e => setForm({...form, statut_compte_util: e.target.value as any})} className="h-12 bg-gray-50 rounded-xl px-4 text-sm border border-gray-100">
+              <select value={form.statut_compte_util} onChange={e => setForm({...form, statut_compte_util: e.target.value as "actif" | "inactif" | "verrouillé"})} className="h-12 bg-gray-50 rounded-xl px-4 text-sm border border-gray-100">
                 <option value="actif">Actif</option>
                 <option value="inactif">Inactif</option>
                 <option value="verrouillé">Verrouillé</option>
