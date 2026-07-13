@@ -56,8 +56,9 @@ export default function AdminExercicesPage() {
 
             <div className="grid grid-cols-3 gap-2">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-gray-400 font-bold uppercase px-1">Inspiration</label>
+                <label htmlFor="inspiration" className="text-[10px] text-gray-400 font-bold uppercase px-1">Inspiration</label>
                 <input
+                  id="inspiration"
                   type="number"
                   min={1}
                   placeholder="ex: 4"
@@ -68,8 +69,9 @@ export default function AdminExercicesPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-gray-400 font-bold uppercase px-1">Apnée</label>
+                <label htmlFor="apnee" className="text-[10px] text-gray-400 font-bold uppercase px-1">Apnée</label>
                 <input
+                  id="apnee"
                   type="number"
                   min={0}
                   placeholder="ex: 4"
@@ -80,8 +82,9 @@ export default function AdminExercicesPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-gray-400 font-bold uppercase px-1">Expiration</label>
+                <label htmlFor="expiration" className="text-[10px] text-gray-400 font-bold uppercase px-1">Expiration</label>
                 <input
+                  id="expiration"
                   type="number"
                   min={1}
                   placeholder="ex: 6"

@@ -1,0 +1,57 @@
+version: 2
+updates:
+  # Surveille les librairies de l'application mobile (React Native / Expo)
+  - package-ecosystem: "npm"
+    directory: "/CESIZen-Mobile"
+    schedule:
+      interval: "weekly"   # vérifie une fois par semaine
+      day: "monday"
+    open-pull-requests-limit: 10   # pas plus de 10 pull requests ouvertes en même temps
+    labels:
+      - "dependencies"
+      - "mobile"
+      - "security"
+    commit-message:
+      prefix: "chore(deps-mobile)"   # préfixe des commits générés, pour les reconnaître facilement
+    groups:
+      # Regroupe les mises à jour Expo / React Native dans une seule pull request
+      # plutôt que d'en avoir une par librairie
+      expo-and-react-native:
+        patterns:
+          - "expo*"
+          - "react-native*"
+          - "@react-native*"
+    # Les versions majeures cassent parfois des choses (changements incompatibles),
+    # donc on ne les met pas à jour automatiquement, seulement les corrections mineures
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Surveille les librairies du site web (Next.js)
+  - package-ecosystem: "npm"
+    directory: "/CESIZen-Web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "web"
+      - "security"
+    commit-message:
+      prefix: "chore(deps-web)"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Surveille aussi les actions utilisées dans les workflows GitHub Actions (CI/CD)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "ci"
+      - "security"
+    commit-message:
+      prefix: "chore(deps-ci)"

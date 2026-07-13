@@ -46,24 +46,10 @@ export async function inscription(email_util: string, mot_de_passe_util: string,
   if (authError) throw authError;
 
   if (data?.user) {
-    const { error: dbError } = await supabase
-      .from("utilisateur")
-      .upsert([{
-        id_util: data.user.id,
-        nom_util,
-        prenom_util,
-        email_util: email_util.trim().toLowerCase(),
-        type_util: "Utilisateur",
-        date_creation_util: new Date().toISOString(),
-        derniere_connexion_util: new Date().toISOString(),
-      }], { onConflict: 'id_util' });
-
-    if (dbError) throw new Error("Erreur profil : " + dbError.message);
-    await insererLog(supabase, 'creation_compte', 'succès', data.user.id);
+      await insererLog(supabase, 'creation_compte', 'succès', data.user.id);
+    }
+    return { success: true };
   }
-
-  return { success: true };
-}
 
 /**
  * CONNEXION

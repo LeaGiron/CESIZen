@@ -91,7 +91,7 @@ export default function AdminPage() {
 
               <select
                 value={form.statut_ress || "brouillon"}
-                onChange={(e) => setForm({ ...form, statut_ress: e.target.value as "publie" | "brouillon" | "archive" })}
+                onChange={(e) => setForm({ ...form, statut_ress: e.target.value as typeof STATUTS[number] })}
                 className="h-12 bg-gray-50 rounded-xl px-4 text-sm border border-gray-200"
               >
                 {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}

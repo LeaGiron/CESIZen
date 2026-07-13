@@ -42,6 +42,10 @@ export const supabase = {
     signUp: jest.fn().mockResolvedValue({ data: { user: mockUser }, error: null }),
     signOut: jest.fn().mockResolvedValue({ error: null }),
     resetPasswordForEmail: jest.fn().mockResolvedValue({ error: null }),
+    updateUser: jest.fn().mockResolvedValue({
+      data: { user: mockUser },
+      error: null,
+    }),
     onAuthStateChange: jest.fn().mockReturnValue({
       data: { subscription: { unsubscribe: jest.fn() } },
     }),

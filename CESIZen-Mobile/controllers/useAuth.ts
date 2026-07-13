@@ -78,16 +78,52 @@ export async function connexion(email: string, mdp: string) {
     password: mdp,
   });
 
+  // On informe systématiquement la fonction serveur attempt_login du résultat de la tentative.
+  // C'est elle qui tient le compteur d'échecs et verrouille le compte côté base (colonnes
+  // tentatives_connexion_util / date_verrouillage_util), ce qu'un appel direct depuis le mobile
+  // ne pourrait pas faire correctement une fois les policies RLS resserrées.
+  let etatCompte: string | null = null;
+  try {
+    const { data: rpcResult, error: rpcError } = await supabase.rpc('attempt_login', {
+      p_email: normalizedEmail,
+      p_success: !!(data?.user && !error),
+    });
+    if (rpcError) {
+      console.error('Erreur attempt_login :', rpcError.message);
+    } else {
+      etatCompte = rpcResult as unknown as string;
+    }
+  } catch (e: any) {
+    console.error('Exception attempt_login :', e?.message);
+  }
+
+  const compteVerrouille =
+    typeof etatCompte === 'string' &&
+    /verrouill|lock/i.test(etatCompte);
+
   if (error || !data.user) {
-    await insererLog('connexion', 'échec');
+    await insererLog('connexion', compteVerrouille ? 'bloque' : 'échec');
 
     return {
       success: false,
-      message: "Identifiants incorrects",
+      message: compteVerrouille
+        ? "Compte verrouillé après plusieurs échecs de connexion. Contactez un administrateur."
+        : "Identifiants incorrects",
     };
   }
 
   const user = data.user;
+
+  // Sécurité supplémentaire : si le compte vient d'être marqué verrouillé malgré une
+  // authentification réussie (cas limite), on refuse l'accès et on déconnecte immédiatement.
+  if (compteVerrouille) {
+    await supabase.auth.signOut().catch(() => {});
+    await insererLog('connexion', 'bloque', user.id);
+    return {
+      success: false,
+      message: "Compte verrouillé. Contactez un administrateur.",
+    };
+  }
 
   const { data: profil } = await supabase
     .from('utilisateur')

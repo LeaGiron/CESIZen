@@ -25,7 +25,7 @@ export function validatePassword(password: string): boolean {
  */
 export function validateEmail(email: string): boolean {
   if (!email) return false
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,24}$/
   return emailRegex.test(email)
 }
 
