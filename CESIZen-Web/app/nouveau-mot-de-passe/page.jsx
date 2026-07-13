@@ -114,3 +114,4 @@ export default function NouveauMotDePassePage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'

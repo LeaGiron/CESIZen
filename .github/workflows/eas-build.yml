@@ -1,0 +1,38 @@
+# Build automatique de l'application mobile via EAS
+# Se déclenche uniquement quand la CI (ci.yml) est déjà passée avec succès sur main
+name: Build mobile (EAS)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "CESIZen-Mobile/**"
+
+jobs:
+  build:
+    name: Build EAS production
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: CESIZen-Mobile
+
+    steps:
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installation des dépendances
+        run: npm install --legacy-peer-deps
+
+      - name: Installation d'EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Lancement du build EAS (profil production)
+        run: eas build --platform all --profile production --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

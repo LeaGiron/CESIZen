@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import BoutonRetour from '@/components/Bouton_retour';
 import { FooterNav } from '@/components/Footer';
-import { supprimerCompteDefinitivement } from '@/controllers/auth.controller';
 
 export default function ProfilPage() {
   const supabase = createBrowserClient(
@@ -102,9 +101,22 @@ export default function ProfilPage() {
     if (confirmation) {
       try {
         setMessage('⏳ Suppression définitive...');
-        await supprimerCompteDefinitivement();
-      } catch (err: unknown) {
-        setMessage(`❌ Erreur: ${(err instanceof Error ? err.message : "Erreur inconnue")}`);
+
+        const response = await fetch('/api/auth/supprimer-compte', {
+          method: 'POST',
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          setMessage(`❌ ${result.message || 'Erreur lors de la suppression.'}`);
+          return;
+        }
+
+        await supabase.auth.signOut();
+        router.replace('/connexion');
+      } catch {
+        setMessage('❌ Erreur serveur lors de la suppression.');
       }
     }
   };
@@ -139,8 +151,9 @@ export default function ProfilPage() {
           <h2 className="text-base font-semibold text-gray-800">Mes informations</h2>
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Prénom</label>
+              <label htmlFor="prenom" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Prénom</label>
               <input
+                id="prenom"
                 type="text"
                 value={prenom_util}
                 onChange={(e) => setPrenom(e.target.value)}
@@ -148,8 +161,9 @@ export default function ProfilPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Nom</label>
+              <label htmlFor="nom" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Nom</label>
               <input
+                id="nom"
                 type="text"
                 value={nom_util}
                 onChange={(e) => setNom(e.target.value)}
@@ -157,8 +171,9 @@ export default function ProfilPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">Email</label>
+              <label htmlFor="email" className="text-xs text-gray-400 font-bold uppercase tracking-wider">Email</label>
               <input
+                id="email"
                 type="email"
                 value={email_util}
                 onChange={(e) => setEmail(e.target.value)}
@@ -192,6 +207,9 @@ export default function ProfilPage() {
             🗑️ Supprimer mon compte définitivement
           </button>
         </section>
+
+        <a href="/api/utilisateur/export" download>Exporter mes données</a>
+
       </main>
 
       <FooterNav estConnecte={true} estAdmin={estAdmin} />

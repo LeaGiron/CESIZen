@@ -1,5 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import * as RessourceController from "../../../../controllers/ressource.controller";
+
+// Vérifie que l'appelant est authentifié et administrateur.
+// Retourne l'id de l'utilisateur si c'est le cas, sinon une réponse d'erreur toute prête.
+async function verifierAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { ok: false as const, response: NextResponse.json(
+      { success: false, message: "Non authentifié." },
+      { status: 401 }
+    ) };
+  }
+
+  const { data: profil, error: profilError } = await supabase
+    .from("utilisateur")
+    .select("type_util")
+    .eq("id_util", user.id)
+    .single();
+
+  if (profilError || profil?.type_util !== "Administrateur") {
+    return { ok: false as const, response: NextResponse.json(
+      { success: false, message: "Accès réservé aux administrateurs." },
+      { status: 403 }
+    ) };
+  }
+
+  return { ok: true as const, id_util: user.id };
+}
 
 /**
  * 🔍 LIRE UNE RESSOURCE (Détail)
@@ -36,13 +66,16 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await verifierAdmin();
+    if (!admin.ok) return admin.response;
+
     const { id: id_ress } = await params;
     const body = await req.json();
-    const { titre_ress, contenu_ress, categorie_ress, id_util } = body;
+    const { titre_ress, contenu_ress, categorie_ress } = body;
 
     const result = await RessourceController.modifierRessource(
       id_ress,
-      id_util,
+      admin.id_util,
       { titre_ress, contenu_ress, categorie_ress }
     );
 
@@ -64,11 +97,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: id_ress } = await params;
-    const body = await req.json();
-    const { id_util } = body;
+    const admin = await verifierAdmin();
+    if (!admin.ok) return admin.response;
 
-    const result = await RessourceController.deleteRessource(id_ress, id_util);
+    const { id: id_ress } = await params;
+
+    const result = await RessourceController.deleteRessource(id_ress, admin.id_util);
 
     return NextResponse.json(result, { status: result.success ? 200 : 400 });
   } catch (error) {
