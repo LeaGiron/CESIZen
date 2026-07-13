@@ -65,6 +65,7 @@ export default function ProfilPage() {
       setChargement(false);
     };
     chargerProfil();
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUpdate = async () => {
@@ -216,3 +217,5 @@ export default function ProfilPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic'

@@ -116,6 +116,10 @@ jest.mock('@/lib/supabase', () => ({
           },
         },
       }),
+      getSession: jest.fn().mockResolvedValue({
+        data: { session: { access_token: 'fake-token' } },
+        error: null,
+      }),
     },
   },
 }));

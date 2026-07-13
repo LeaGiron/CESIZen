@@ -125,7 +125,7 @@ export function useInscription() {
       await inscription(email_util, mot_de_passe_util, nom_util, prenom_util);
       router.push("/connexion");
     } catch (err: any) {
-      setMessageErreur(err.message);
+      setMessageErreur((err instanceof Error ? err.message : "Erreur inconnue"));
     }
   };
 

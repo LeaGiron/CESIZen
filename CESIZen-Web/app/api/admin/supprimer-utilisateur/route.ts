@@ -33,7 +33,6 @@ export async function POST(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'ID utilisateur manquant' }, { status: 400 })
     }
-
     const { error: dbError } = await supabaseAdmin
       .from('utilisateur')
       .delete()

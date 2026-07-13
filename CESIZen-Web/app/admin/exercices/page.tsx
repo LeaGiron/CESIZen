@@ -168,3 +168,6 @@ export default function AdminExercicesPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic'
+

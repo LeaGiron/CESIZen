@@ -149,3 +149,6 @@ export default function AdminLogsPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic'
+

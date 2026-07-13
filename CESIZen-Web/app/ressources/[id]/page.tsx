@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import BoutonRetour from '@/components/Bouton_retour';
 import { FooterNav } from '@/components/Footer';
 import { createBrowserClient } from '@supabase/ssr';
+import type { Ressource } from '@/models/admin_ressource.model';
 
 export default function DetailRessourcePage() {
   const { id } = useParams();
@@ -14,12 +15,6 @@ export default function DetailRessourcePage() {
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-  type Ressource = {
-    titre_ress: string;
-    contenu_ress: string;
-    categorie_ress: string;
-  };
 
   const [ressource, setRessource] = useState<Ressource | null>(null);
   const [chargement, setChargement] = useState(true);
@@ -63,6 +58,7 @@ export default function DetailRessourcePage() {
     };
 
     if (id) chargerDonnees();
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (chargement) {
@@ -142,3 +138,4 @@ export default function DetailRessourcePage() {
     </div>
   );
 }
+export const dynamic = 'force-dynamic'

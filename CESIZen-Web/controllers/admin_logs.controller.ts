@@ -99,7 +99,7 @@ export function useAdminLogs() {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Erreur chargement logs :', error.message);
+        console.error('Erreur chargement logs :', (error instanceof Error ? error.message : "Erreur inconnue"));
       } else {
         setLogs((data as unknown as Log[]) || []);
       }

@@ -54,19 +54,22 @@ jobs:
 
       # Analyse statique du code avec ESLint
       - name: Analyse statique du code
-        run: npm run lint --if-present
+        run: npm run lint
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
-        run: npm test --if-present
+        run: npm test
 
       # Génération du build de production
       - name: Génération du build
         run: npm run build --if-present
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       # Vérification des vulnérabilités des dépendances npm
       - name: Audit de sécurité des dépendances
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
 
   # =========================
   # JOB APPLICATION MOBILE
@@ -102,7 +105,7 @@ jobs:
 
       # Analyse du code avec ESLint
       - name: Analyse statique du code
-        run: npm run lint --if-present
+        run: npm run lint
 
       # Exécution des tests automatisés
       - name: Exécution des tests automatisés
@@ -110,4 +113,4 @@ jobs:
 
       # Audit de sécurité npm
       - name: Audit de sécurité des dépendances
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
