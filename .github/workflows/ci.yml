@@ -53,7 +53,6 @@ jobs:
         run: npm install --legacy-peer-deps
 
       # Analyse statique du code avec ESLint
-      # continue-on-error permet de continuer la CI même si des erreurs sont détectées
       - name: Analyse statique du code
         run: npm run lint --if-present
 
