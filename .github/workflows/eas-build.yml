@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Récupération du code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Installation de Node.js
         uses: actions/setup-node@v4
