@@ -16,6 +16,11 @@ CESIZen est une application web et mobile dédiée à la santé mentale et à la
 - Docker
 - Jira
 
+## Déploiement
+
+- Web : hébergé sur Vercel, déploiement automatique à chaque push sur `main` (production) et à chaque Pull Request (preview)
+- Mobile : builds générés via EAS Build (Expo)
+
 ## Auteur
 
 Léa
