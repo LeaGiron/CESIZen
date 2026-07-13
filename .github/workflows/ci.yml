@@ -40,7 +40,7 @@ jobs:
 
       # Récupération du dépôt GitHub
       - name: Récupération du code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Installation de Node.js
       - name: Installation de Node.js
@@ -91,7 +91,7 @@ jobs:
 
       # Téléchargement du code source
       - name: Récupération du code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Installation de Node.js
       - name: Installation de Node.js
