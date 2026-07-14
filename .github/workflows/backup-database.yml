@@ -1,0 +1,35 @@
+# Sauvegarde automatique quotidienne de la base de données Supabase (PostgreSQL).
+# La sauvegarde est stockée comme artefact GitHub Actions, conservée 7 jours.
+name: Sauvegarde base de données
+
+on:
+  # Tous les jours à 3h du matin (UTC)
+  schedule:
+    - cron: "0 3 * * *"
+  # Permet aussi de lancer la sauvegarde manuellement depuis l'onglet Actions
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Export de la base de données
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Installation du client PostgreSQL
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Génération du nom du fichier avec la date du jour
+        id: date
+        run: echo "filename=cesizen-backup-$(date +'%Y-%m-%d').sql" >> "$GITHUB_OUTPUT"
+
+      - name: Export de la base (pg_dump)
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: pg_dump "$DATABASE_URL" -F p -f "${{ steps.date.outputs.filename }}"
+
+      - name: Sauvegarde de l'export comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.date.outputs.filename }}
+          path: ${{ steps.date.outputs.filename }}
+          retention-days: 7
