@@ -59,7 +59,7 @@ export function useAdminRessources(): UseAdminRessourcesReturn {
 
         const role = await getRoleUtilisateur(user.id);
 
-        if (!role || role.trim().toLowerCase() !== "administrateur") {
+        if (role?.trim().toLowerCase() !== "administrateur") {
           router.push("/");
           return;
         }
