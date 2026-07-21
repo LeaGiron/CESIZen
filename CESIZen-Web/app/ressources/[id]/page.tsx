@@ -1,12 +1,51 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import BoutonRetour from '@/components/Bouton_retour';
 import { FooterNav } from '@/components/Footer';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Ressource } from '@/models/admin_ressource.model';
+
+type MarkdownComponentProps = HTMLAttributes<HTMLElement> & {
+  node?: unknown;
+  children?: ReactNode;
+};
+
+function MarkdownH3({ node: _node, ...props }: MarkdownComponentProps) {
+  return (
+    <h3 className="text-xl font-bold text-gray-900 mt-10 mb-4 flex items-center gap-2 uppercase tracking-wide" {...props}>
+      <span className="w-1 h-6 bg-green-500 rounded-full"></span>
+      {props.children}
+    </h3>
+  );
+}
+
+function MarkdownP({ node: _node, ...props }: MarkdownComponentProps) {
+  return <p className="text-lg mb-6 leading-relaxed text-gray-700" {...props} />;
+}
+
+function MarkdownUl({ node: _node, ...props }: MarkdownComponentProps) {
+  return <ul className="list-disc list-outside ml-6 mb-8 space-y-3 text-gray-700 text-lg" {...props} />;
+}
+
+function MarkdownLi({ node: _node, ...props }: MarkdownComponentProps) {
+  return <li className="pl-2 marker:text-green-500" {...props} />;
+}
+
+function MarkdownStrong({ node: _node, ...props }: MarkdownComponentProps) {
+  return <strong className="font-bold text-gray-900" {...props} />;
+}
+
+const markdownComponents = {
+  h3: MarkdownH3,
+  p: MarkdownP,
+  ul: MarkdownUl,
+  li: MarkdownLi,
+  strong: MarkdownStrong,
+};
 
 export default function DetailRessourcePage() {
   const { id } = useParams();
@@ -50,7 +89,8 @@ export default function DetailRessourcePage() {
         } else {
           setErreur(data.message);
         }
-      } catch {
+      } catch (err) {
+        console.error('Erreur chargement ressource :', err);
         setErreur("Impossible de charger la ressource.");
       } finally {
         setChargement(false);
@@ -100,33 +140,7 @@ export default function DetailRessourcePage() {
 
         {/* Rendu Markdown personnalisé */}
         <div className="text-gray-800">
-          <ReactMarkdown
-            components={{
-              // Style pour les SOUS-TITRES (### Titre)
-              h3: ({ ...props }) => (
-                <h3 className="text-xl font-bold text-gray-900 mt-10 mb-4 flex items-center gap-2 uppercase tracking-wide" {...props}>
-                    <span className="w-1 h-6 bg-green-500 rounded-full"></span>
-                    {props.children}
-                </h3>
-              ),
-              // Style pour les paragraphes
-              p: ({ ...props }) => (
-                <p className="text-lg mb-6 leading-relaxed text-gray-700" {...props} />
-              ),
-              // Style pour les listes à puces (-)
-              ul: ({ ...props }) => (
-                <ul className="list-disc list-outside ml-6 mb-8 space-y-3 text-gray-700 text-lg" {...props} />
-              ),
-              // Style pour chaque élément de liste
-              li: ({ ...props }) => (
-                <li className="pl-2 marker:text-green-500" {...props} />
-              ),
-              // Style pour le texte en gras (**texte**)
-              strong: ({ ...props }) => (
-                <strong className="font-bold text-gray-900" {...props} />
-              ),
-            }}
-          >
+          <ReactMarkdown components={markdownComponents}>
             {ressource.contenu_ress}
           </ReactMarkdown>
         </div>

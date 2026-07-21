@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: 'Utilisateur supprimé avec succès' })
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Erreur serveur.';
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Erreur suppression utilisateur :', error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
