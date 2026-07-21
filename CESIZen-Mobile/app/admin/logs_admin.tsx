@@ -66,7 +66,7 @@ export default function AdminLogsPage() {
               size={18}
               color={ICONE_ACTION[log.type_action_log]?.color ?? '#6B7280'}
             />
-            <Text style={styles.actionName}>{log.type_action_log.replace(/_/g, ' ')}</Text>
+            <Text style={styles.actionName}>{log.type_action_log.replaceAll('_', ' ')}</Text>
           </View>
           <View style={[
             styles.statusBadge, 
@@ -143,14 +143,14 @@ export default function AdminLogsPage() {
           onPress={() => {
             Alert.alert("Filtrer par action", "Choisissez une action :", 
               FILTRES_ACTION.map(a => ({
-                text: a === 'Tous' ? "Toutes les actions" : a.replace(/_/g, ' '),
+                text: a === 'Tous' ? "Toutes les actions" : a.replaceAll('_', ' '),
                 onPress: () => setFiltreAction(a)
               }))
             );
           }}
         >
           <Text style={styles.selectBtnText}>
-            {filtreAction === 'Tous' ? '📂 Toutes les actions' : `🎯 ${filtreAction.replace(/_/g, ' ')}`}
+            {filtreAction === 'Tous' ? '📂 Toutes les actions' : `🎯 ${filtreAction.replaceAll('_', ' ')}`}
           </Text>
           <Text style={{ color: '#9CA3AF' }}>▼</Text>
         </TouchableOpacity>

@@ -1,6 +1,7 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
+import type { User } from '@supabase/supabase-js';
 import { useEffect, useState, useCallback } from 'react';
 
 // Interface pour corriger l'erreur TypeScript "never[]"
@@ -21,7 +22,7 @@ export function useDashboard() {
   const [estConnecte, setEstConnecte] = useState(false);
   const [estAdmin, setEstAdmin] = useState(false);
 
-  const chargerProfil = useCallback(async (user: any) => {
+  const chargerProfil = useCallback(async (user: User | null) => {
     if (!user) {
       setEstConnecte(false);
       setEstAdmin(false);

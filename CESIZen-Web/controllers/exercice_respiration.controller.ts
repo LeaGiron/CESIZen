@@ -4,7 +4,7 @@ export async function afficherExercices() {
   try {
     const data = await getAllExercices();
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error) {
     console.error('afficherExercices error:', error);
     return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
@@ -20,7 +20,7 @@ export async function creerExercice(id_util: string, exercice: {
   try {
     const data = await saveExercice(exercice);
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error) {
     console.error('creerExercice error:', error);
     return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
@@ -36,7 +36,7 @@ export async function modifierExercice(id_exer: string, id_util: string, exercic
   try {
     const data = await saveExercice({ id_exer, ...exercice });
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error) {
     console.error('modifierExercice error:', error);
     return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }
@@ -46,7 +46,7 @@ export async function supprimerExercice(id_exer: string, id_util: string) {
   try {
     await deleteExercice(id_exer);
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('supprimerExercice error:', error);
     return { success: false, message: (error instanceof Error ? error.message : "Erreur inconnue") };
   }

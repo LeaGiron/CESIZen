@@ -1,11 +1,12 @@
 "use client";
 
 import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export async function insererLog(
-  supabase: any,
+  supabase: SupabaseClient,
   type_action_log: string,
   statut_log: 'succès' | 'échec' | 'bloque',
   id_util: string | null = null
@@ -124,7 +125,7 @@ export function useInscription() {
     try {
       await inscription(email_util, mot_de_passe_util, nom_util, prenom_util);
       router.push("/connexion");
-    } catch (err: any) {
+    } catch (err) {
       setMessageErreur((err instanceof Error ? err.message : "Erreur inconnue"));
     }
   };
@@ -160,7 +161,7 @@ export function useConnexion() {
           window.location.href = "/dashboard";
         }
       }
-    } catch (err: any) {
+    } catch {
       setMessageErreur("Identifiants incorrects.");
     }
   };
